@@ -1,6 +1,7 @@
 import requests
 from utils.utils import _build_authentication_headers
 from bitfinnex_funding_credit import main as available_funding
+from bitfinnex_funding_statistic import main as retrieve_frr
 import json
 
 API = "https://api.bitfinex.com/v2"
@@ -30,11 +31,13 @@ def main():
     if float(data["available_balance"]) < 150:
         return "insufficient to create order"
     else:
+
+        rate = 0.051 if retrieve_frr() < 0.051 else retrieve_frr()
         payload = {
             "type": "LIMIT",
             "symbol": "fUSD",
             "amount": str(data["available_balance"]),
-            "rate": "0.00052",
+            "rate": str(rate / 100),
             "period": 2,
             "flags": 0
         }

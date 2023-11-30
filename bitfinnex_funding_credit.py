@@ -44,5 +44,5 @@ def main():
 
 
 result = main()
-print(result)
+
 
