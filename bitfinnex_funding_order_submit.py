@@ -3,6 +3,7 @@ from utils.utils import _build_authentication_headers
 from bitfinnex_funding_credit import main as available_funding
 from bitfinnex_funding_statistic import main as retrieve_frr
 import json
+from datetime import datetime, time
 
 API = "https://api.bitfinex.com/v2"
 
@@ -31,8 +32,18 @@ def main():
     if float(data["available_balance"]) < 150:
         return "insufficient to create order"
     else:
+        static_rate = 0.051
+        current_frr = retrieve_frr()
 
-        rate = 0.051 if retrieve_frr() < 0.051 else retrieve_frr()
+        current_time = datetime.now().time()
+        start_time = time(22, 0)
+        end_time = time(2, 0)
+
+        if start_time <= current_time or current_time <= end_time:
+            rate = static_rate + 0.005
+        else:
+            rate = current_frr - 0.001 if current_frr > static_rate else static_rate
+
         payload = {
             "type": "LIMIT",
             "symbol": "fUSD",
