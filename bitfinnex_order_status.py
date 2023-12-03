@@ -21,12 +21,12 @@ def format_trade_data(trade_data):
         create_datetime = datetime.fromtimestamp(timestamp_create / 1000.0)
 
         formatted_trade = {
-            "Trade ID": trade_id,
-            "Symbol": symbol,
-            "Create Timestamp": create_datetime.strftime("%Y-%m-%d %H:%M:%S"),
-            "Buy Price": amount,
-            "Rate": rate * 100,
-            "Period": period
+            "trade_id": trade_id,
+            "symbol": symbol,
+            "create_timestamp": create_datetime.strftime("%Y-%m-%d %H:%M:%S"),
+            "order_price": amount,
+            "rate": rate * 100,
+            "period": period
         }
 
         formatted_trades.append(formatted_trade)

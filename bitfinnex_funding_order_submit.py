@@ -1,6 +1,7 @@
 import requests
 from utils.utils import _build_authentication_headers
 from bitfinnex_funding_credit import main as available_funding
+from bitfinnex_order_status import main as retrieve_order
 from bitfinnex_funding_statistic import main as retrieve_frr
 import json
 from datetime import datetime, time
@@ -24,17 +25,39 @@ def format_trade_data(trade_data):
     return formatted_trades
 
 
+def check_order_rate(current_frr):
+    endpoint = "auth/w/funding/offer/cancel"
+    static_diff_rate = 0.015
+    order_result = json.loads(retrieve_order())
+    if len(order_result) > 0:
+        for trade_data in order_result:
+            rate = trade_data["rate"]
+            trade_id = trade_data["trade_id"]
+            if abs(current_frr - rate) < static_diff_rate or abs(rate - current_frr) < static_diff_rate:
+                payload = {"id": trade_id}
+                request_response(payload,endpoint)
+
+
+def request_response(payload,endpoint):
+    headers = {
+        "Content-Type": "application/json",
+        "accept": "application/json",
+        **_build_authentication_headers(endpoint, payload)
+    }
+    response = requests.post(f"{API}/{endpoint}", json=payload, headers=headers)
+    return response
+
+
 def main():
     endpoint = "auth/w/funding/offer/submit"
-
+    current_frr = retrieve_frr()
+    check_order_rate(current_frr)
     result_fund = available_funding()
     data = json.loads(result_fund)[0]
     if float(data["available_balance"]) < 150:
         return "insufficient to create order"
     else:
         static_rate = 0.051
-        current_frr = retrieve_frr()
-
         current_time = datetime.now().time()
         start_time = time(22, 0)
         end_time = time(2, 0)
@@ -52,13 +75,8 @@ def main():
             "period": 2,
             "flags": 0
         }
-        headers = {
-            "Content-Type": "application/json",
-            "accept": "application/json",
-            **_build_authentication_headers(endpoint, payload)
-        }
 
-        response = requests.post(f"{API}/{endpoint}", json=payload, headers=headers)
+        response = request_response(payload,endpoint)
         # data = [
         #     1700901928870, "fon-req", None, None,
         #     [
