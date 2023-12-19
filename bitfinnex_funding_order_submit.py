@@ -57,7 +57,7 @@ def main():
     if float(data["available_balance"]) < 150:
         return "insufficient to create order"
     else:
-        static_rate = 0.051
+        static_rate = 0.046
         current_time = datetime.now().time()
         start_time = time(22, 0)
         end_time = time(2, 0)
@@ -72,7 +72,7 @@ def main():
             "symbol": "fUSD",
             "amount": str(data["available_balance"]),
             "rate": str(rate / 100),
-            "period": 2,
+            "period": 5,
             "flags": 0
         }
 
